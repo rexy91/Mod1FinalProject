@@ -1,5 +1,26 @@
 ## Process
-
+## Steps 
+1. Welcome Message
+2. Ask User Name
+3. User Inputs their username
+4. Greet user with name!
+5. Ask if the user want to see their favorite song
+6. Give Option YES or No
+7. If Yes AND list exist Display the favorite list
+   - prompt message "What would you like to do? 
+   - "1. ADD SONGS 2. DELETE SONGS" 3.Play from list 4. Exit! 
+        - 3. plays a random song from user's favourtie list.
+   - delete song from the list
+   - add song (ask for mood , pick songs and add to fav list)
+   - and ask if they want to play the song from the list
+8. if no fav list - find new song by mood (mood method)
+9. If no ask their mood and prompt them to pick songs
+10.  pick songs
+11. play songs (if possible)
+12. ask if they want to save the songs
+13. if yes add to fav list method and (exit)
+14. if no , ask if they want more music
+    (if yes prompt them with mood method / if no EXIT! )
 ### Setup
 1. Create Gemfile + run `bundle`
 2. Create migrations: run `rake db:create_migration` and add the syntax you need (e.g. NAME=create_users)
