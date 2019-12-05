@@ -172,7 +172,7 @@ def prompt_yes_no
       add_to_fav_list
       print_fav_songs
     else
-      
+
     end
 
 end 
@@ -316,6 +316,7 @@ def update_list
     welcome_media
     print_fav_songs
     update_list
+    
 
   elsif update_choice.downcase == "exit".downcase
     puts "GOOD BYE!"
