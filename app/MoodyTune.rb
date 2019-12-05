@@ -56,7 +56,6 @@ class MoodyTune
       end
   end
 
-
   def ask_mood_and_show_songs
 
     moods = ['Happy', 'Sad', 'Excited', 'Chill', 'Romantic']
@@ -75,54 +74,64 @@ end  # End of ask_mood_and_show_songs
 
 
 def display_songs_and_choose(songs)
-  pastel = Pastel.new
-  font = TTY::Font.new
+  # pastel = Pastel.new
+  # font = TTY::Font.new
   # We initiazlied prompt, only need to do it once? 
   # prompt_save = TTY::Prompt.new
   # new_prompt = TTY::Prompt.new
   sleep(1)
-  song_choices = prompt.multi_select("Here are the songs matching your mood, please choose songs:",songs)
-  choice = prompt.select("Which one do you want to listen to? ", song_choices)
   system "clear"
-
-  # Assign the song user played to be song_choice. (To be passed into adding fav list.)
-  song_to_play = choice.split(" by ").first 
+  song_choices = prompt.multi_select("Here are the songs matching your mood, please choose songs:",songs)
+  system "clear"
+  song_to_play = prompt.select("Which one do you want to listen to? ", song_choices)
+  system "clear"
+  # Call play music method, pass in the song to be played. 
+  # play_music(song_to_play)
+  # Call adding to favrouite list method. 
+  add_to_fav_list(song_to_play)
   
-  pid = fork{ exec 'afplay', "musics/#{song_to_play}.mp3"}
+
+  # Call play music method.
+  # AFter played, if yes 
+        # Thern call add_to_fav_list
+        # If no call update_list method (menu).
+
+
+  # # Assign the song user played to be song_choice. (To be passed into adding fav list.)
+  # song_to_play = choice.split(" by ").first 
   
-  # Display colored text while song is playing. 
+  # pid = fork{ exec 'afplay', "musics/#{song_to_play}.mp3"}
   
-  sleep(1)
-  puts "Playing '#{song_to_play}' for you!!!".colorize(:yellow)
-  sleep(2)  
-  puts "\n"
-  puts pastel.on_red(font.write("Enjoy"))
-  sleep(2)
-  puts pastel.on_yellow(font.write("Your "))
-  sleep(2)
-  puts pastel.on_cyan(font.write("Music "))
-  sleep(2)
-  puts pastel.on_magenta(font.write("      !!!        "))
+  # # Display colored text while song is playing. 
+  
+  # sleep(1)
+  # puts "Playing '#{song_to_play}' for you!!!".colorize(:yellow)
+  # sleep(2)  
+  # puts "\n"
+  # puts pastel.on_red(font.write("Enjoy"))
+  # sleep(2)
+  # puts pastel.on_yellow(font.write("Your "))
+  # sleep(2)
+  # puts pastel.on_cyan(font.write("Music "))
+  # sleep(2)
+  # puts pastel.on_magenta(font.write("      !!!        "))
 
+  # # Find duration of song, so we can pause terminal for that duration while song is playing:
+  # song_choice_instance = Song.all.find do |song|
+  #                         song.songname == song_to_play
+  #                       end
 
-  # Find duration of song, so we can pause terminal for that duration while song is playing:
-  song_choice_instance = Song.all.find do |song|
-                          song.songname == song_to_play
-                        end
-
-  # Get the duration attribute of the song and convert it to int.
-  song_duration = song_choice_instance.duration.to_i
-  # Sleep for less than the duration.
-  sleep(song_duration - 4 )
-  # ** Insert pic/animation while song is being played 
-
-  prompt_yes_no = prompt.select("Do you want to add the song to favourite list?", ["Yes", "No"])
+  # # Get the duration attribute of the song and convert it to int.
+  # song_duration = song_choice_instance.duration.to_i
+  # # Sleep for less than the duration.
+  # sleep(song_duration - 4 )
+  # prompt_yes_no = prompt.select("Do you want to add the song to favourite list?", ["Yes", "No"])
 
   # ** Needs condition here, for adding song or no. 
 
-  song_to_play = song_to_play.split('!') # To convert it into an arry.
-  binding.pry 
-  add_to_fav_list(song_to_play)  # Instead of passing in song_choices(which is more than one choice), we pass in the one use chose to play. 
+  # song_to_play = song_to_play.split(" by ").first # To pull the songname only.
+  # song_to_play = song_to_play.split('!') # To convert it into an arry.
+   # Instead of passing in song_choices(which is more than one choice), we pass in the one use chose to play. 
                                 # ** If chose two songs but only listend to one, will still add two to fav songs.
   
   #** Try to play the song_choice music.
@@ -132,10 +141,14 @@ def add_to_fav_list(song_to_play)
     # Need to only match the one the user listened to. 
     # Loop through songs, find it by the song that the user listened to. 
     # And then created an favsong instance by user_id and song_id. 
+
+  song_to_play = song_to_play.split(' by ') # To seperate songname and artist. 
+  song_to_play = song_to_play.first.split('!') # To convert it into an array in order to use each. 
+  prompt_yes_no = prompt.select("Do you want to add the song to favourite list?", ["Yes", "No"])
     song_to_play.each do |song|
-        song_id = Song.find_by(songname:song_to_play.first).id
-        binding.pry 
+        song_id = Song.find_by(songname:song_to_play).id 
            Favsong.create(user_id: @user.id, song_id: song_id)
+           
     end 
     puts "You have added your songs successfully!".colorize(:green)
 end # End of method
@@ -157,6 +170,7 @@ def show_favrouite_songs
          else
         # If favrouite list is not empty, puts fav songs.
         #prompt message "1. ADD SONGS 2. DELETE SONGS"
+    
           puts 'Here are your favourite songs:'.colorize(:green)
           fav_songs.each_with_index do |favsong, i|
             puts " #{i + 1}. #{favsong.song.songname.colorize(:red)} by #{favsong.song.artist}"
@@ -190,8 +204,6 @@ end #end of delete method
     end
 
   end
-
-
 end # end of moody class
 
 def delete 
@@ -202,11 +214,82 @@ def delete
     end  
 end 
 
-
 def play_from_favourite_list(song)
     # What do you want to do?
     # Add songs.
     # Delete songs.
     # Play songs from favourite list. 
-    
 end 
+
+def play_music(song)
+  # Takes in user's choice of music to be played. 
+  pastel = Pastel.new
+  font = TTY::Font.new
+  # To split songname and artist, then obtain the songname. 
+  song_to_play = song.split(" by ").first 
+  pid = fork{ exec 'afplay', "musics/#{song_to_play}.mp3"}
+  # Display colored text while song is playing. 
+  sleep(1)
+  puts "Playing '#{song_to_play}' for you!!!".colorize(:yellow)
+  sleep(2)  
+  puts "\n"
+  puts pastel.on_red(font.write("Enjoy"))
+  sleep(2)
+  puts pastel.on_yellow(font.write("Your "))
+  sleep(2)
+  puts pastel.on_cyan(font.write("Music "))
+  sleep(2)
+  puts pastel.on_magenta(font.write("      !!!        "))
+
+  # Find duration of song, so we can pause terminal for that duration while song is playing:
+  song_choice_instance = Song.all.find do |song|
+                          song.songname == song_to_play
+                        end
+  # Get the duration attribute of the song and convert it to int.
+  song_duration = song_choice_instance.duration.to_i
+  sleep(song_duration)
+end 
+
+# Saima updated these codes: 
+
+# def delete_song
+#   delete_prompt = TTY::Prompt.new
+#   selected_song_idx = prompt.select('Select a song to delete. Scroll down to see the whole list!') do |song_list|
+#     song_list.enum '.'
+#     fav_songs_instances.each_with_index do |fav_song, i|
+#       song_list.choice fav_song.song.songname, i
+#     end
+#   end
+#   selected_id = fav_songs_instances[selected_song_idx].id
+#   Favsong.delete(selected_id)
+# end # end of delete method
+
+
+# def update_list
+#   # welcome_media
+#   add_delete_prompt = TTY::Prompt.new
+#   update_choice = add_delete_prompt.select('What do you want to do?', ['Add Songs', 'Delete Songs', 'Play Songs', 'Exit'])
+#   sleep(3)
+#   system 'clear'
+#   welcome_media
+#   if update_choice.downcase == 'Add Songs'.downcase
+#     ask_mood_and_show_songs
+#     sleep(3)
+#     system 'clear'
+#     welcome_media
+#     print_fav_songs
+#     update_list
+#   elsif update_choice.downcase == 'Delete Songs'.downcase
+#     delete_song
+#     puts 'Your Song has been deleted successfully!!'
+#     sleep(3)
+#     system 'clear'
+#     welcome_media
+#     print_fav_songs
+#     update_list
+
+#   elsif update_choice.downcase == "exit".downcase
+#     puts "GOOD BYE!"
+#   end
+# end
+# end # end of moody class
