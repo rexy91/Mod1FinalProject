@@ -2,7 +2,6 @@ require 'pry'
 require "tty-prompt"
 require 'colorize'
 require 'colorized_string'
-
 class MoodyTune
     attr_reader :user
     attr_accessor :prompt
@@ -14,12 +13,10 @@ class MoodyTune
   # here will be your CLI!
   # it is not an AR class so you need to add attr
     end
-
   def run
     # test
     # ask_mood_and_show_songs
     welcome
-    login_signup
     show_favrouite_songs
 
     # get_joke(what_subject)
@@ -31,12 +28,22 @@ class MoodyTune
   #    prompt.select("Choose your destiny?", %w(Scorpion Kano Jax))
   # end
   def welcome
+      welcome_promp = TTY::Prompt.new
+      system "clear"
       puts "Welcome to MoodyTune!!! \nFull of music that will fit your mood.".colorize(:green)
       sleep(1)
-      system "clear"
+      login_choice = welcome_promp.select("Login or change username:", ["Login->","Change Username.!"])
+      if login_choice == "Login->"
+              login
+      else    
+              puts 'What is your name?'
+              username = gets.chomp 
+              @user = User.find_or_create_by(username: username.downcase)
+              update_username
+      end 
   end
 
-  def login_signup
+  def login
       puts 'What is your name?'.colorize(:green)
       username = gets.chomp.downcase
       sleep(1.5)
@@ -72,11 +79,6 @@ class MoodyTune
 end  # End of ask_mood_and_show_songs
 
 def display_songs_and_choose(songs)
-  # pastel = Pastel.new
-  # font = TTY::Font.new
-  # We initiazlied prompt, only need to do it once? 
-  # prompt_save = TTY::Prompt.new
-  # new_prompt = TTY::Prompt.new
   sleep(1)
   system "clear"
   song_choices = prompt.multi_select("Here are the songs matching your mood, please choose songs:",songs)
@@ -84,7 +86,7 @@ def display_songs_and_choose(songs)
   song_to_play = prompt.select("Which one do you want to listen to? ", song_choices)
   system "clear"
   # Call play music method, pass in the song to be played. 
-  # play_music(song_to_play)
+  play_music(song_to_play)
   # Call adding to favrouite list method. 
   add_to_fav_list(song_to_play)
   sleep(1)
@@ -152,7 +154,9 @@ def add_to_fav_list(song_to_play)
               Favsong.create(user_id: @user.id, song_id: song_id)
              
           end 
+      
       print_fav_songs
+      sleep(3)
     else 
 
           sleep(1)
@@ -210,12 +214,14 @@ def show_favrouite_songs
           show_favrouite_songs
     end
 end
-def delete_song(song)
 
-  Favsong.all.select do |fav_song|
-    favsong.song.songname == song
-  end
-end #end of delete method
+
+# def delete_song(song)
+
+#   Favsong.all.select do |fav_song|
+#     favsong.song.songname == song
+#   end
+# end #end of delete method
 
 # Old version of update list method. 
 #   def update_list
@@ -280,22 +286,22 @@ end
 
 # Saima updated these codes: 
 
-# def delete_song
-#   delete_prompt = TTY::Prompt.new
-#   selected_song_idx = prompt.select('Select a song to delete. Scroll down to see the whole list!') do |song_list|
-#     song_list.enum '.'
-#     fav_songs_instances.each_with_index do |fav_song, i|
-#       song_list.choice fav_song.song.songname, i
-#     end
-#   end
-#   selected_id = fav_songs_instances[selected_song_idx].id
-#   Favsong.delete(selected_id)
-# end # end of delete method
+def delete_song
+  delete_prompt = TTY::Prompt.new
+  selected_song_idx = prompt.select('Select a song to delete. Scroll down to see the whole list!') do |song_list|
+    song_list.enum '.'
+    fav_songs_instances.each_with_index do |fav_song, i|
+      song_list.choice fav_song.song.songname, i
+    end
+  end
+  selected_id = fav_songs_instances[selected_song_idx].id
+  Favsong.delete(selected_id)
+end # end of delete method
 
 def update_list
   # welcome_media
   add_delete_prompt = TTY::Prompt.new
-  update_choice = add_delete_prompt.select('What do you want to do?', ['Add Songs', 'Delete Songs', 'Play Songs', 'Exit'])
+  update_choice = add_delete_prompt.select('What do you want to do?', ['Add Songs', 'Delete Songs','Update Username','Exit'])
   sleep(3)
   system 'clear'
 
@@ -305,7 +311,7 @@ def update_list
     ask_mood_and_show_songs
     sleep(3)
     system 'clear'
-    welcome_media
+    # welcome_media
     print_fav_songs
     update_list
   elsif update_choice.downcase == 'Delete Songs'.downcase
@@ -313,9 +319,13 @@ def update_list
     puts 'Your Song has been deleted successfully!!'
     sleep(3)
     system 'clear'
-    welcome_media
+    # welcome_media
     print_fav_songs
     update_list
+
+  elsif update_choice.downcase == 'Update Username'.downcase
+
+            update_username 
     
 
   elsif update_choice.downcase == "exit".downcase
@@ -330,4 +340,16 @@ def print_fav_songs
     sleep(0.2)
   end # loop ends
 end
+
+
+
+def update_username
+    puts "What would you change your username to ?"
+    update_username = gets.chomp
+    @user.update(username: update_username)
+    puts 'Your username has been updated.'
+    sleep(1)
+    system "clear"
+    update_list
+end 
 # end # end of moody class
