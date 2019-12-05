@@ -20,7 +20,10 @@ song4 = Song.create(songname:'Together', artist: 'Martin Garrix', mood: 'Happy',
 
 # Chill:
 song5 = Song.create(songname: 'Lost',artist:'Illenium',mood:'Chill',url:'https://www.youtube.com/watch?v=5dJG_DdOuOM',duration:'28')
-song6 = Song.create(songname: 'Let You Go',artist:'Illenium',mood:'Sad',url:'https://www.youtube.com/watch?v=oofSnsGkops',duration:'30')
+song6 = Song.create(songname: 'Into You',artist:'Matisse & Sadko',mood:'Chill',url:'https://www.youtube.com/watch?v=RpVDEAG7nYY&list=PLt8fcdovyojFGzjfDdtv70JK8CPqHiDZn&index=21',duration:'25')
+
+#Sad 
+song7 = Song.create(songname: 'Let You Go',artist:'Illenium',mood:'Sad',url:'https://www.youtube.com/watch?v=oofSnsGkops',duration:'30')
 
 
 

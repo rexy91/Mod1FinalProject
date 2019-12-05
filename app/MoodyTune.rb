@@ -56,6 +56,7 @@ class MoodyTune
       end
   end
 
+
   def ask_mood_and_show_songs
 
     moods = ['Happy', 'Sad', 'Excited', 'Chill', 'Romantic']
@@ -71,6 +72,8 @@ class MoodyTune
     display_songs_and_choose(matching_songnames_artists)
 end  # End of ask_mood_and_show_songs
 
+
+
 def display_songs_and_choose(songs)
   pastel = Pastel.new
   font = TTY::Font.new
@@ -78,13 +81,16 @@ def display_songs_and_choose(songs)
   # prompt_save = TTY::Prompt.new
   # new_prompt = TTY::Prompt.new
   sleep(1)
-  song_choice = prompt.multi_select("Here are the songs matching your mood, please choose:",songs)
-  choice = prompt.select("Which one do you want to listen to? ", song_choice)
+  song_choices = prompt.multi_select("Here are the songs matching your mood, please choose songs:",songs)
+  choice = prompt.select("Which one do you want to listen to? ", song_choices)
   system "clear"
 
+  # Assign the song user played to be song_choice. (To be passed into adding fav list.)
   song_to_play = choice.split(" by ").first 
   
-  pid = fork{ exec 'afplay', "../#{song_to_play}.mp3"}
+  pid = fork{ exec 'afplay', "musics/#{song_to_play}.mp3"}
+  
+  # Display colored text while song is playing. 
   
   sleep(1)
   puts "Playing '#{song_to_play}' for you!!!".colorize(:yellow)
@@ -111,16 +117,26 @@ def display_songs_and_choose(songs)
   # ** Insert pic/animation while song is being played 
 
   prompt_yes_no = prompt.select("Do you want to add the song to favourite list?", ["Yes", "No"])
-  add_to_fav_list(song_choice)
+
+  # ** Needs condition here, for adding song or no. 
+
+  song_to_play = song_to_play.split('!') # To convert it into an arry.
+  binding.pry 
+  add_to_fav_list(song_to_play)  # Instead of passing in song_choices(which is more than one choice), we pass in the one use chose to play. 
+                                # ** If chose two songs but only listend to one, will still add two to fav songs.
+  
   #** Try to play the song_choice music.
 end # End of method
 
-def add_to_fav_list(song_choice)
-    song_choice.each do |song|
-        song_id = Song.find_by(songname: song.split(' by ').first).id
+def add_to_fav_list(song_to_play)
+    # Need to only match the one the user listened to. 
+
+    
+    song_to_play.each do |song|
+        song_id = Song.find_by(songname:song_to_play.first).id
+        binding.pry 
            Favsong.create(user_id: @user.id, song_id: song_id)
-        # binding.pry
-    end
+    end 
     puts "You have added your songs successfully!".colorize(:green)
 end # End of method
 
@@ -129,13 +145,14 @@ def show_favrouite_songs
       fav_songs = fav_songs_instances
       puts 'Would you like to see your favourite songs?'.colorize(:green)
       input = gets.chomp
+      sleep(1)
       system "clear"
       if input.downcase == 'yes' # and fav_songs is empty, puts 'no fav songs.'
         sleep(1)
-        puts "\n"
         # If favrouite is empty , puts sorry message.
          if fav_songs.empty?
             puts "Sorry, your favourite list is empty. \n Lets add songs to the list.".colorize(:green)
+            sleep(2.5)
             ask_mood_and_show_songs
          else
         # If favrouite list is not empty, puts fav songs.
