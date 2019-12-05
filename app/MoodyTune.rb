@@ -44,8 +44,8 @@ class MoodyTune
       # we use @user so we can use this variable in other methods outside of this scope..
       @user = User.find_or_create_by(username: username.downcase)
       puts "Hello #{@user.username.capitalize} !!!!".colorize(:color => :white, :background => :red)
-      sleep(0.5)
-        system "clear"
+      sleep(3)
+      system "clear"
   end
 
   def fav_songs_instances
@@ -86,25 +86,32 @@ def display_songs_and_choose(songs)
   song_to_play = choice.split(" by ").first 
   
   pid = fork{ exec 'afplay', "#{song_to_play}.mp3" }
- 
-  puts "Playing '#{song_to_play}' for you!!!".colorize(:yellow)
   
-  puts pastel.red(font.write("Enjoy!!"))
+  sleep(1)
+  puts "Playing '#{song_to_play}' for you!!!".colorize(:yellow)
+  sleep(2)  
+  puts "\n"
+  puts pastel.on_red(font.write("Enjoy"))
+  sleep(2)
+  puts pastel.on_yellow(font.write("Your "))
+  sleep(2)
+  puts pastel.on_cyan(font.write("Music "))
+  sleep(2)
+  puts pastel.on_magenta(font.write("      !!!        "))
 
+
+  # Find duration of song, so we can pause terminal for that duration while song is playing:
+  song_choice_instance = Song.all.find do |song|
+                          song.songname == song_to_play
+                        end
+
+  # Get the duration attribute of the song and convert it to int.
+  song_duration = song_choice_instance.duration.to_i
+  # Sleep for less than the duration.
+  sleep(song_duration - 4 )
   # ** Insert pic/animation while song is being played 
 
-  # Need to sleep for the song's duration.
-  # Play for 30 secs then mute the song. 
-
-  # Find duration of song:
-  song_duration =  Song.all.find do |song|
-          song.songname == song_to_play
-      end
-  sleep(0)
-
-  system "clear "
-  
-  prompt_yes_no = prompt.select("Do you want to add the songs to favourite list?", ["Yes", "No"])
+  prompt_yes_no = prompt.select("Do you want to add the song to favourite list?", ["Yes", "No"])
   add_to_fav_list(song_choice)
   #** Try to play the song_choice music.
 end # End of method
@@ -123,7 +130,7 @@ def show_favrouite_songs
       fav_songs = fav_songs_instances
       puts 'Would you like to see your favourite songs?'.colorize(:green)
       input = gets.chomp
-
+      system "clear"
       if input.downcase == 'yes' # and fav_songs is empty, puts 'no fav songs.'
         sleep(1)
         puts "\n"
