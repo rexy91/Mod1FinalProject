@@ -44,7 +44,7 @@ class MoodyTune
       # we use @user so we can use this variable in other methods outside of this scope..
       @user = User.find_or_create_by(username: username.downcase)
       puts "Hello #{@user.username.capitalize} !!!!".colorize(:color => :white, :background => :red)
-      sleep(3)
+      sleep(2.5)
       system "clear"
   end
 
@@ -79,13 +79,12 @@ def display_songs_and_choose(songs)
   # new_prompt = TTY::Prompt.new
   sleep(1)
   song_choice = prompt.multi_select("Here are the songs matching your mood, please choose:",songs)
-  
   choice = prompt.select("Which one do you want to listen to? ", song_choice)
   system "clear"
 
   song_to_play = choice.split(" by ").first 
   
-  pid = fork{ exec 'afplay', "#{song_to_play}.mp3" }
+  pid = fork{ exec 'afplay', "../#{song_to_play}.mp3"}
   
   sleep(1)
   puts "Playing '#{song_to_play}' for you!!!".colorize(:yellow)
