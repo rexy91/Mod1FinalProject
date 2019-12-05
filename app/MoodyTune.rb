@@ -2,39 +2,40 @@ require 'pry'
 require "tty-prompt"
 require 'colorize'
 require 'colorized_string'
-require 'tty-font'
 
 class MoodyTune
     attr_reader :user
     attr_accessor :prompt
+
     def initialize()
       @prompt = TTY::Prompt.new
-      @font = TTY::Font.new
-      @pastel = Pastel.new
+
   # This is just reading @user in this class.
   # here will be your CLI!
   # it is not an AR class so you need to add attr
     end
 
-def run
-    
+  def run
+    # test
     # ask_mood_and_show_songs
-    # music_test 
     welcome
     login_signup
     show_favrouite_songs
-end
+
+    # get_joke(what_subject)
+  end
+
   private # Only getting called inside this class.
+
   # def test
   #    prompt.select("Choose your destiny?", %w(Scorpion Kano Jax))
   # end
-
-
-def welcome
+  def welcome
       puts "Welcome to MoodyTune!!! \nFull of music that will fit your mood.".colorize(:green)
       sleep(1)
       system "clear"
   end
+
   def login_signup
       puts 'What is your name?'.colorize(:green)
       username = gets.chomp.downcase
@@ -56,6 +57,7 @@ def welcome
   end
 
   def ask_mood_and_show_songs
+
     moods = ['Happy', 'Sad', 'Excited', 'Chill', 'Romantic']
     mood_choice = prompt.select("What is your mood today?",moods)
     matching_songs = Song.all.select do |each_song|
@@ -69,33 +71,42 @@ def welcome
     display_songs_and_choose(matching_songnames_artists)
 end  # End of ask_mood_and_show_songs
 
-
-# Working on this, Wed night 
-# Got playing a single song to work. 
 def display_songs_and_choose(songs)
-    # We initiazlied prompt, only need to do it once? 
-    # prompt_save = TTY::Prompt.new
-    # new_prompt = TTY::Prompt.new
-    sleep(1)
-    song_choice = prompt.multi_select("Here are the songs matching your mood, please choose:",songs)
+  pastel = Pastel.new
+  font = TTY::Font.new
+  # We initiazlied prompt, only need to do it once? 
+  # prompt_save = TTY::Prompt.new
+  # new_prompt = TTY::Prompt.new
+  sleep(1)
+  song_choice = prompt.multi_select("Here are the songs matching your mood, please choose:",songs)
+  
+  choice = prompt.select("Which one do you want to listen to? ", song_choice)
+  system "clear"
 
-    choice = prompt.select("Which one do you want to listen to? ", song_choice)
-    system "clear"
-    song_to_play = choice.split(" by ").first 
-    
-    pid = fork{ exec 'afplay', "#{song_to_play}.mp3" }
+  song_to_play = choice.split(" by ").first 
+  
+  pid = fork{ exec 'afplay', "#{song_to_play}.mp3" }
+ 
+  puts "Playing '#{song_to_play}' for you!!!".colorize(:yellow)
+  
+  puts pastel.red(font.write("Enjoy!!"))
 
-    puts "Playing '#{song_to_play}' for you!!!".colorize(:yellow)
+  # ** Insert pic/animation while song is being played 
 
-    # ** Insert pic/animation while song is being played 
-    
-    # Need to sleep for the song's duration.
-    sleep(186)
-    system "clear "
-    
-    prompt_yes_no = prompt.select("Do you want to add the songs to favourite list?", ["Yes", "No"])
-    add_to_fav_list(song_choice)
-    #** Try to play the song_choice music.
+  # Need to sleep for the song's duration.
+  # Play for 30 secs then mute the song. 
+
+  # Find duration of song:
+  song_duration =  Song.all.find do |song|
+          song.songname == song_to_play
+      end
+  sleep(0)
+
+  system "clear "
+  
+  prompt_yes_no = prompt.select("Do you want to add the songs to favourite list?", ["Yes", "No"])
+  add_to_fav_list(song_choice)
+  #** Try to play the song_choice music.
 end # End of method
 
 def add_to_fav_list(song_choice)
@@ -107,10 +118,12 @@ def add_to_fav_list(song_choice)
     puts "You have added your songs successfully!".colorize(:green)
 end # End of method
 
+
 def show_favrouite_songs
       fav_songs = fav_songs_instances
       puts 'Would you like to see your favourite songs?'.colorize(:green)
       input = gets.chomp
+
       if input.downcase == 'yes' # and fav_songs is empty, puts 'no fav songs.'
         sleep(1)
         puts "\n"
@@ -136,21 +149,24 @@ def show_favrouite_songs
           show_favrouite_songs
     end
 end
-
 def delete_song(song)
+
   Favsong.all.select do |fav_song|
     favsong.song.songname == song
   end
 end #end of delete method
 
-def update_list
+  def update_list
     add_delete_prompt = TTY::Prompt.new
     update_choice = add_delete_prompt.select("Would you like tp update your playlist?",["Add Songs", "Delete Songs", "Exit"])
+
     if update_choice.downcase == "Add Songs".downcase
       ask_mood_and_show_songs
     elsif update_choice.downcase == "Delete Songs"
       delete_song
     end
+
   end
 
-end # End of moody class
+
+end # end of moody class

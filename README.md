@@ -18,7 +18,7 @@
 10.  pick songs
 11. play songs (if possible)
 12. ask if they want to save the songs
-13. if yes add to fav list method and (exit)
+13. if yes add to fav list method (** No duplicated if song already in fav list) and (exit)
 14. if no , ask if they want more music
     (if yes prompt them with mood method / if no EXIT! )
 ### Setup
