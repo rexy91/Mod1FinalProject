@@ -71,8 +71,6 @@ class MoodyTune
     display_songs_and_choose(matching_songnames_artists)
 end  # End of ask_mood_and_show_songs
 
-
-
 def display_songs_and_choose(songs)
   # pastel = Pastel.new
   # font = TTY::Font.new
@@ -89,8 +87,9 @@ def display_songs_and_choose(songs)
   # play_music(song_to_play)
   # Call adding to favrouite list method. 
   add_to_fav_list(song_to_play)
-  
-
+  sleep(1)
+  system "clear"
+  update_list 
   # Call play music method.
   # AFter played, if yes 
         # Thern call add_to_fav_list
@@ -145,17 +144,42 @@ def add_to_fav_list(song_to_play)
   song_to_play = song_to_play.split(' by ') # To seperate songname and artist. 
   song_to_play = song_to_play.first.split('!') # To convert it into an array in order to use each. 
   prompt_yes_no = prompt.select("Do you want to add the song to favourite list?", ["Yes", "No"])
-    song_to_play.each do |song|
-        song_id = Song.find_by(songname:song_to_play).id 
-           Favsong.create(user_id: @user.id, song_id: song_id)
-           
+    if prompt_yes_no.downcase == 'yes'.downcase 
+        # sleep(1)
+        # system "clear"
+        song_to_play.each do |song|
+          song_id = Song.find_by(songname:song_to_play).id 
+              Favsong.create(user_id: @user.id, song_id: song_id)
+             
+          end 
+      print_fav_songs
+    else 
+
+          sleep(1)
+          system "clear"
+          update_list   
+          print_fav_songs
     end 
+    
     puts "You have added your songs successfully!".colorize(:green)
+    # print_fav_songs
+
 end # End of method
 
+def prompt_yes_no
+  prompt_yes_no = prompt.select("Do you want to add the song to favourite list?", ["Yes", "No"])
+    if prompt_yes_no.downcase == 'yes'.downcase 
+      add_to_fav_list
+      print_fav_songs
+    else
+      
+    end
+
+end 
 
 def show_favrouite_songs
       fav_songs = fav_songs_instances
+      
       puts 'Would you like to see your favourite songs?'.colorize(:green)
       input = gets.chomp
       sleep(1)
@@ -193,18 +217,21 @@ def delete_song(song)
   end
 end #end of delete method
 
-  def update_list
-    add_delete_prompt = TTY::Prompt.new
-    update_choice = add_delete_prompt.select("Would you like tp update your playlist?",["Add Songs", "Delete Songs", "Exit"])
-
-    if update_choice.downcase == "Add Songs".downcase
-      ask_mood_and_show_songs
-    elsif update_choice.downcase == "Delete Songs"
-      delete_song
-    end
-
-  end
-end # end of moody class
+# Old version of update list method. 
+#   def update_list
+#     add_delete_prompt = TTY::Prompt.new
+#     update_choice = add_delete_prompt.select("Would you like tp update your playlist?",["Add Songs", "Delete Songs", "Play From Favourite List", "Exit"])
+    
+#     if update_choice.downcase == "Add Songs".downcase
+#       ask_mood_and_show_songs
+#     elsif update_choice.downcase == "Delete Songs"
+#       delete_song
+#     elsif update_choice.downcase == "Play From Favourite List"
+#       # To be worked on .
+#     elsif update_choice.downcase == "Exit".downcase
+#       puts "GOOD BYE!!"
+#     end 
+# end 
 
 def delete 
   # Loop through user favsong, match songname with the one user wants to delete.
@@ -249,6 +276,7 @@ def play_music(song)
   song_duration = song_choice_instance.duration.to_i
   sleep(song_duration)
 end 
+end 
 
 # Saima updated these codes: 
 
@@ -264,32 +292,41 @@ end
 #   Favsong.delete(selected_id)
 # end # end of delete method
 
+def update_list
+  # welcome_media
+  add_delete_prompt = TTY::Prompt.new
+  update_choice = add_delete_prompt.select('What do you want to do?', ['Add Songs', 'Delete Songs', 'Play Songs', 'Exit'])
+  sleep(3)
+  system 'clear'
 
-# def update_list
-#   # welcome_media
-#   add_delete_prompt = TTY::Prompt.new
-#   update_choice = add_delete_prompt.select('What do you want to do?', ['Add Songs', 'Delete Songs', 'Play Songs', 'Exit'])
-#   sleep(3)
-#   system 'clear'
-#   welcome_media
-#   if update_choice.downcase == 'Add Songs'.downcase
-#     ask_mood_and_show_songs
-#     sleep(3)
-#     system 'clear'
-#     welcome_media
-#     print_fav_songs
-#     update_list
-#   elsif update_choice.downcase == 'Delete Songs'.downcase
-#     delete_song
-#     puts 'Your Song has been deleted successfully!!'
-#     sleep(3)
-#     system 'clear'
-#     welcome_media
-#     print_fav_songs
-#     update_list
+  # welcome_media is the moodyTune animation.
+  # welcome_media
+  if update_choice.downcase == 'Add Songs'.downcase
+    ask_mood_and_show_songs
+    sleep(3)
+    system 'clear'
+    welcome_media
+    print_fav_songs
+    update_list
+  elsif update_choice.downcase == 'Delete Songs'.downcase
+    delete_song
+    puts 'Your Song has been deleted successfully!!'
+    sleep(3)
+    system 'clear'
+    welcome_media
+    print_fav_songs
+    update_list
 
-#   elsif update_choice.downcase == "exit".downcase
-#     puts "GOOD BYE!"
-#   end
-# end
+  elsif update_choice.downcase == "exit".downcase
+    puts "GOOD BYE!"
+  end
+end
+
+def print_fav_songs
+  puts 'Here are your favourite songs:'.colorize(:green)
+  favourites = fav_songs_instances.each_with_index do |favsong, i|
+    puts "#{i + 1}. #{favsong.song.songname.colorize(:red)} by #{favsong.song.artist} "
+    sleep(0.2)
+  end # loop ends
+end
 # end # end of moody class
