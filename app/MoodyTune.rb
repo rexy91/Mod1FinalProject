@@ -130,8 +130,8 @@ end # End of method
 
 def add_to_fav_list(song_to_play)
     # Need to only match the one the user listened to. 
-
-    
+    # Loop through songs, find it by the song that the user listened to. 
+    # And then created an favsong instance by user_id and song_id. 
     song_to_play.each do |song|
         song_id = Song.find_by(songname:song_to_play.first).id
         binding.pry 
@@ -193,3 +193,20 @@ end #end of delete method
 
 
 end # end of moody class
+
+def delete 
+  # Loop through user favsong, match songname with the one user wants to delete.
+  # then delete it. 
+  User.last.favsongs.select do |favsong|
+      favsong.song.songname == 'South Side'
+    end  
+end 
+
+
+def play_from_favourite_list(song)
+    # What do you want to do?
+    # Add songs.
+    # Delete songs.
+    # Play songs from favourite list. 
+    
+end 
